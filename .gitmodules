@@ -1,0 +1,6 @@
+[submodule "vendor/rvvm-hal"]
+	path = vendor/rvvm-hal
+	url = https://github.com/SolAstrius/rvvm-hal
+[submodule "vendor/micropython"]
+	path = vendor/micropython
+	url = https://github.com/micropython/micropython
