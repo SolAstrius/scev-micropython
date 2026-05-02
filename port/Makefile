@@ -22,9 +22,12 @@ TARGET   := riscv64-freestanding-none
 CC      = $(ZIG) cc -target $(TARGET)
 AS      = $(CC)
 LD      = $(CC)
-AR      = llvm-ar
-OBJCOPY = llvm-objcopy
-SIZE    = llvm-size
+# Use zig's bundled binutils so the only build dependency is `zig` on
+# PATH. mkenv.mk sets these with `=`, so we force-override with `=` too.
+# Override on the command line (e.g. AR=llvm-ar make) to swap.
+AR      = $(ZIG) ar
+OBJCOPY = $(ZIG) objcopy
+SIZE    := $(shell command -v llvm-size 2>/dev/null || command -v size 2>/dev/null || echo true)
 
 # ---------- Flags ----------
 ARCH_EXTS := -Xclang -target-feature -Xclang +zba \
@@ -90,7 +93,7 @@ all: $(BUILD)/firmware.bin
 $(BUILD)/firmware.elf: $(OBJ)
 	$(ECHO) "LINK $@"
 	$(Q)$(LD) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
-	$(Q)$(SIZE) $@
+	-$(Q)$(SIZE) $@ 2>/dev/null || true
 
 $(BUILD)/firmware.bin: $(BUILD)/firmware.elf
 	$(ECHO) "OBJCOPY $@"
